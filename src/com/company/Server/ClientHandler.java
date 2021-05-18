@@ -13,7 +13,13 @@ public class ClientHandler extends Thread {
     OutputStream outputStream;
     @Override
     public void run(){
+        try {
+            outputStream.write("Connected\n".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.echo();
+
         this.close();
     }
     public ClientHandler(Socket clientSocket) {

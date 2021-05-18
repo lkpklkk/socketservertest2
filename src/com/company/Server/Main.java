@@ -13,7 +13,8 @@ public class Main {
             ServerSocket serverSocket = new ServerSocket(port);
             while (true){
                 //starting to accept connection
-                Socket socket = new ServerSocket().accept();
+                System.out.println("start accepting connection");
+                Socket socket = serverSocket.accept();
                 ClientHandler clientHandler = new ClientHandler(socket);
                 clientHandler.start();
             }
