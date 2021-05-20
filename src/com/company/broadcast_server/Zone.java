@@ -1,4 +1,4 @@
-package com.company.Server;
+package com.company.broadcast_server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,14 +9,20 @@ import java.util.ArrayList;
  * @author lekeping
  */
 public class Zone extends Thread {
-    int port;
-    ArrayList<UserWorker> userWorkers = new ArrayList<>();
-
+    private int port;
+    private ArrayList<UserWorker> userWorkers = new ArrayList<>();
+    private HistoryQue historyQue = new HistoryQue();
     public Zone(int port) {
         this.port = port;
     }
 
+    public void addHistory(Message message){
+        historyQue.addHistory(message);
+    }
+    public ArrayList<Message> getHistory(){
+     return historyQue.getHistory();
 
+    }
     @Override
     public void run() {
         try {
@@ -26,7 +32,7 @@ public class Zone extends Thread {
                 System.out.println("start accepting connection");
                 Socket socket = serverSocket.accept();
                 UserWorker userWorker = new UserWorker(socket, this);
-                userWorkers.add(userWorker);
+                this.userWorkers.add(userWorker);
                 userWorker.start();
             }
         } catch (IOException e) {
@@ -35,6 +41,10 @@ public class Zone extends Thread {
     }
 
     public ArrayList<UserWorker> getUserWorkers() {
-        return userWorkers;
+        return this.userWorkers;
+    }
+
+    public void removeWorker(UserWorker userWorker) {
+        this.userWorkers.remove(userWorker);
     }
 }

@@ -8,7 +8,7 @@ public class ClientMain {
 
     {
         try {
-            socket = new Socket("127.0.0.1",5000);
+            socket = new Socket("127.0.0.1", 5000);
 
         } catch (IOException e) {
             e.printStackTrace();

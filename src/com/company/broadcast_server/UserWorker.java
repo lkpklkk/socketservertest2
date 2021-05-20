@@ -1,8 +1,9 @@
-package com.company.Server;
+package com.company.broadcast_server;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 /**
  * @author lekeping
@@ -12,6 +13,7 @@ public class UserWorker extends Thread {
     InputStream inputStream;
     OutputStream outputStream;
     Zone zone;
+    String name;
 
 
     public UserWorker(Socket userSocket, Zone zone) {
@@ -28,38 +30,64 @@ public class UserWorker extends Thread {
 
     @Override
     public void run() {
-        try {
-            outputStream.write("Connected\nType \"quit\" to exit".getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line = null;
-        try {
-            line = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        while (!"quit".equalsIgnoreCase(line)) {
-            try {
 
-                String[] cmd = line.split(" ");
-                if ("broadcast".equalsIgnoreCase(cmd[0])) {
-                    this.broadcast();
-                } else if ("echo".equalsIgnoreCase(cmd[0])) {
-                    this.selfEcho();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        String line;
+        while (true) {
+
+            try {
+                outputStream.write("your name plz:\n".getBytes(StandardCharsets.UTF_8));
+                line = reader.readLine();
+                if (line.length() != 0 && line.length() < 10) {
+                    name = line.trim();
+                    break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try {
-                line = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         }
+
+        try {
+
+            while (!"quit".equalsIgnoreCase(line)) {
+                outputStream.write(("Connected\nType \"broadcast\" for sending a server broadcast, \"history\" for " +
+                        "last 50 broadcasthistory\n \"echo\" for echo mode and \"quit\" to disconnect " +
+                        "server\n").getBytes(StandardCharsets.UTF_8));
+                line = reader.readLine();
+                switch (line) {
+                    case "broadcast":
+                        broadcast();
+                        break;
+                    case "history":
+                        getHistory();
+                        break;
+                    case "echo":
+                        selfEcho();
+                        break;
+                    default:
+                        break;
+                }
+
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        zone.removeWorker(this);
         this.close();
+    }
+
+    private void getHistory() throws IOException {
+        ArrayList<Message> messages = zone.getHistory();
+        if (messages != null) {
+            for (Message message : messages) {
+                this.write(message);
+            }
+        } else {
+            write(new Message("System", "history not init yet"));
+        }
     }
 
     private void broadcast() throws IOException {
@@ -68,8 +96,9 @@ public class UserWorker extends Thread {
         outputStream.write("Input broadcast msg below\n".getBytes(StandardCharsets.UTF_8));
         s = bufferedReader.readLine();
         for (UserWorker worker : zone.getUserWorkers()) {
-            worker.write(s);
+            worker.write(new Message(name, s));
         }
+        zone.addHistory(new Message(name,s));
     }
 
     private void close() {
@@ -99,8 +128,8 @@ public class UserWorker extends Thread {
         }
     }
 
-    private void write(String message) throws IOException {
-        outputStream.write((message + "\n").getBytes(StandardCharsets.UTF_8));
+    private void write(Message message) throws IOException {
+        outputStream.write(message.toString().getBytes(StandardCharsets.UTF_8));
     }
 
 }
