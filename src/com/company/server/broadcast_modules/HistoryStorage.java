@@ -1,46 +1,29 @@
 package com.company.server.broadcast_modules;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author lekeping
  */
 public class HistoryStorage {
     public static final int MAX_RECENT_HISTORY = 50;
-    public static final int MIN_HISTORY_DISPLAY = 10;
-    ArrayList<Message> messages = new ArrayList<>();
+    public static final int MIN_HISTORY_DISPLAY = 1;
+    List<Message> messages = new LinkedList<>();
     int count = 0;
-    private Node head;
-    private Node tail;
 
     public void addHistory(Message message) {
-        if (head == null) {
-            head = new Node(message);
-            tail = head;
-            count++;
-            messages.add(head.getMessage());
-        } else if (count < MAX_RECENT_HISTORY) {
-            Node oldHead = head;
-            head = new Node(message);
-            head.setNext(oldHead);
-            oldHead.setPre(head);
-            messages.add(head.getMessage());
-            count++;
+        if (count < MAX_RECENT_HISTORY) {
+            messages.add(message);
         } else {
-            tail = tail.getPre();
-            messages.remove(tail.getMessage());
-            tail.setNext(null);
-            Node oldHead = head;
-            head = new Node(message);
-            messages.add(head.getMessage());
-            head.setNext(oldHead);
-            oldHead.setPre(head);
-
+            messages.add(message);
+            messages.remove(0);
         }
     }
 
-    public ArrayList<Message> getHistory() {
-        if (count > MIN_HISTORY_DISPLAY) {
+    public List<Message> getHistory() {
+        if (count >= MIN_HISTORY_DISPLAY) {
             return messages;
         } else {
             return null;

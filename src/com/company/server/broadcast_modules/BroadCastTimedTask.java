@@ -18,9 +18,7 @@ public class BroadCastTimedTask extends TimerTask {
     @Override
     public void run() {
         ArrayList<Message> curBroadCasting = zone.getMsgsQueAndClear();
-        if (curBroadCasting.size() == 0) {
-            
-        } else {
+        if (curBroadCasting.size() != 0) {
             zone.broadcast(curBroadCasting);
         }
     }

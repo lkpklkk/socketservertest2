@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lekeping
@@ -85,7 +86,7 @@ public class UserWorker extends Thread {
     }
 
     private void getHistory() throws IOException {
-        ArrayList<Message> messages = zone.getHistory();
+        List<Message> messages = zone.getHistory();
         if (messages != null) {
             for (Message message : messages) {
                 this.write(message);

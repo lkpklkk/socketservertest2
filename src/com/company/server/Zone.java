@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 
 /**
@@ -17,7 +18,6 @@ public class Zone extends Thread {
     public static final int BROADCAST_PERIOD = 1000;
     private final Timer timer = new Timer();
     private final Object msgsQueLock = new Object();
-    private final Object historyLock = new Object();
     private final int port;
     private final ArrayList<UserWorker> userWorkers = new ArrayList<>();
     private ArrayList<Message> msgsQue = new ArrayList<>();
@@ -28,13 +28,16 @@ public class Zone extends Thread {
     }
 
     public void addHistory(Message message) {
-        historyStorage.addHistory(message);
+        synchronized (historyStorage) {
+            historyStorage.addHistory(message);
+        }
+
     }
 
-    public ArrayList<Message> getHistory() {
-        synchronized (historyLock) {
-            return historyStorage.getHistory();
-        }
+    public List<Message> getHistory() {
+
+        return historyStorage.getHistory();
+
     }
 
     @Override
