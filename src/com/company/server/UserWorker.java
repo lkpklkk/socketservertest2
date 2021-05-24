@@ -5,7 +5,6 @@ import com.company.server.broadcast_modules.Message;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ import java.util.List;
  */
 public class UserWorker extends Thread {
     final int MAX_USER_INPUT_LENGTH = 200;
-    final long MSG_INTERVAL_MILIS = 10000;
+    final long BROADCAST_INTERVAL_MILI = 10000;
     Socket userSocket;
     InputStream inputStream;
     OutputStream outputStream;
@@ -89,16 +88,16 @@ public class UserWorker extends Thread {
         List<Message> messages = zone.getHistory();
         if (messages != null) {
             for (Message message : messages) {
-                this.write(message);
+                this.write(message.toString());
             }
         } else {
-            write(new Message("System", "history not init yet"));
+            write(new Message("System", "history not init yet").toString());
         }
     }
 
     private void broadcast() throws IOException {
         if (lastMsgTime != 0) {
-            if (System.currentTimeMillis() - lastMsgTime < MSG_INTERVAL_MILIS) {
+            if (System.currentTimeMillis() - lastMsgTime < BROADCAST_INTERVAL_MILI) {
                 outputStream.write("plz wait for 10 sec until next broadcast".getBytes(StandardCharsets.UTF_8));
                 return;
             }
@@ -149,8 +148,8 @@ public class UserWorker extends Thread {
         }
     }
 
-    public void write(Message message) throws IOException {
-        outputStream.write(message.toString().getBytes(StandardCharsets.UTF_8));
+    public void write(String s) throws IOException {
+        outputStream.write(s.getBytes(StandardCharsets.UTF_8));
     }
 
 }

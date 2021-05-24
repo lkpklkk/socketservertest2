@@ -9,7 +9,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author lekeping
@@ -31,13 +33,10 @@ public class Zone extends Thread {
         synchronized (historyStorage) {
             historyStorage.addHistory(message);
         }
-
     }
 
     public List<Message> getHistory() {
-
         return historyStorage.getHistory();
-
     }
 
     @Override
@@ -78,14 +77,16 @@ public class Zone extends Thread {
     }
 
     public void broadcast(ArrayList<Message> curBroadCasting) {
-        for (UserWorker userWorker : userWorkers) {
-            for (Message message : curBroadCasting) {
-                try {
-                    userWorker.write(message);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        try {
+            for (UserWorker userWorker : userWorkers) {
+                userWorker.write("Broadcasting :\n");
+                for (Message message : curBroadCasting) {
+                    userWorker.write(message.toString());
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 }

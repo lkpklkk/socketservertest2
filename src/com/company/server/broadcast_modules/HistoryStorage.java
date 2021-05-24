@@ -16,6 +16,7 @@ public class HistoryStorage {
     public void addHistory(Message message) {
         if (count < MAX_RECENT_HISTORY) {
             messages.add(message);
+            count++;
         } else {
             messages.add(message);
             messages.remove(0);
