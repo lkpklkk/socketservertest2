@@ -1,6 +1,9 @@
-package com.company.broadcast_server;
+package com.company.server.broadcast_modules;
 
 
+/**
+ * @author lekeping
+ */
 public class Message {
     String name;
     String content;

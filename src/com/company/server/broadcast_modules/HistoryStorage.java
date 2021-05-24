@@ -1,13 +1,17 @@
-package com.company.broadcast_server;
+package com.company.server.broadcast_modules;
 
 import java.util.ArrayList;
 
-public class HistoryQue {
+/**
+ * @author lekeping
+ */
+public class HistoryStorage {
+    public static final int MAX_RECENT_HISTORY = 50;
+    public static final int MIN_HISTORY_DISPLAY = 10;
     ArrayList<Message> messages = new ArrayList<>();
     int count = 0;
     private Node head;
     private Node tail;
-    private boolean ready = true;
 
     public void addHistory(Message message) {
         if (head == null) {
@@ -15,7 +19,7 @@ public class HistoryQue {
             tail = head;
             count++;
             messages.add(head.getMessage());
-        } else if (count < 50) {
+        } else if (count < MAX_RECENT_HISTORY) {
             Node oldHead = head;
             head = new Node(message);
             head.setNext(oldHead);
@@ -23,7 +27,6 @@ public class HistoryQue {
             messages.add(head.getMessage());
             count++;
         } else {
-            ready = true;
             tail = tail.getPre();
             messages.remove(tail.getMessage());
             tail.setNext(null);
@@ -37,7 +40,7 @@ public class HistoryQue {
     }
 
     public ArrayList<Message> getHistory() {
-        if (count > 10) {
+        if (count > MIN_HISTORY_DISPLAY) {
             return messages;
         } else {
             return null;

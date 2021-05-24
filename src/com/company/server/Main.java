@@ -1,4 +1,4 @@
-package com.company.broadcast_server;
+package com.company.server;
 
 public class Main {
 

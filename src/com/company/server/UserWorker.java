@@ -1,4 +1,6 @@
-package com.company.broadcast_server;
+package com.company.server;
+
+import com.company.server.broadcast_modules.Message;
 
 import java.io.*;
 import java.net.Socket;
@@ -9,11 +11,14 @@ import java.util.ArrayList;
  * @author lekeping
  */
 public class UserWorker extends Thread {
+    final int MAX_USER_INPUT_LENGTH = 200;
+    final long MSG_INTERVAL_MILIS = 10000;
     Socket userSocket;
     InputStream inputStream;
     OutputStream outputStream;
     Zone zone;
     String name;
+    long lastMsgTime = 0;
 
 
     public UserWorker(Socket userSocket, Zone zone) {
@@ -37,7 +42,7 @@ public class UserWorker extends Thread {
         while (true) {
 
             try {
-                outputStream.write("your name plz:\n".getBytes(StandardCharsets.UTF_8));
+                outputStream.write("Connected\nYour name plz:\n".getBytes(StandardCharsets.UTF_8));
                 line = reader.readLine();
                 if (line.length() != 0 && line.length() < 10) {
                     name = line.trim();
@@ -51,7 +56,7 @@ public class UserWorker extends Thread {
         try {
 
             while (!"quit".equalsIgnoreCase(line)) {
-                outputStream.write(("Connected\nType \"broadcast\" for sending a server broadcast, \"history\" for " +
+                outputStream.write(("Type \"broadcast\" for sending a server broadcast, \"history\" for " +
                         "last 50 broadcasthistory\n \"echo\" for echo mode and \"quit\" to disconnect " +
                         "server\n").getBytes(StandardCharsets.UTF_8));
                 line = reader.readLine();
@@ -91,14 +96,29 @@ public class UserWorker extends Thread {
     }
 
     private void broadcast() throws IOException {
+        if (lastMsgTime != 0) {
+            if (System.currentTimeMillis() - lastMsgTime < MSG_INTERVAL_MILIS) {
+                outputStream.write("plz wait for 10 sec until next broadcast".getBytes(StandardCharsets.UTF_8));
+                return;
+            }
+        }
         String s;
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         outputStream.write("Input broadcast msg below\n".getBytes(StandardCharsets.UTF_8));
         s = bufferedReader.readLine();
-        for (UserWorker worker : zone.getUserWorkers()) {
-            worker.write(new Message(name, s));
+        if (s.length() > 0 && s.length() < MAX_USER_INPUT_LENGTH) {
+            //msg successfully sent out from user
+
+            lastMsgTime = System.currentTimeMillis();
+            Message msg = new Message(name, s);
+            zone.addMsgsQue(msg);
+            zone.addHistory(msg);
+        } else {
+            outputStream.write((s.length() > 0) ? "msg too long\n".getBytes(StandardCharsets.UTF_8)
+                    : "msg cant be empty\n".getBytes(StandardCharsets.UTF_8));
         }
-        zone.addHistory(new Message(name,s));
+
+
     }
 
     private void close() {
@@ -128,7 +148,7 @@ public class UserWorker extends Thread {
         }
     }
 
-    private void write(Message message) throws IOException {
+    public void write(Message message) throws IOException {
         outputStream.write(message.toString().getBytes(StandardCharsets.UTF_8));
     }
 

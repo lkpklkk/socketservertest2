@@ -1,5 +1,8 @@
-package com.company.broadcast_server;
+package com.company.server.broadcast_modules;
 
+/**
+ * @author lekeping
+ */
 public class Node {
     private final Message message;
     private Node next = null;
@@ -19,15 +22,6 @@ public class Node {
 
     public Message getMessage() {
         return message;
-    }
-
-
-    public boolean hasNext() {
-        return this.next != null;
-    }
-
-    public Node getNext() {
-        return next;
     }
 
     public void setNext(Node next) {
