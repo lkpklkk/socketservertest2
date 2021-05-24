@@ -9,9 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author lekeping
@@ -21,22 +19,23 @@ public class Zone extends Thread {
     private final Timer timer = new Timer();
     private final Object msgsQueLock = new Object();
     private final int port;
-    private final ArrayList<UserWorker> userWorkers = new ArrayList<>();
     private ArrayList<Message> msgsQue = new ArrayList<>();
-    private final HistoryStorage historyStorage = new HistoryStorage();
+    private final Dao dao;
 
     public Zone(int port) {
         this.port = port;
+        dao = new Dao();
     }
 
     public void addHistory(Message message) {
-        synchronized (historyStorage) {
-            historyStorage.addHistory(message);
+        synchronized (dao) {
+            dao.addHistory(message);
         }
+
     }
 
     public List<Message> getHistory() {
-        return historyStorage.getHistory();
+        return dao.getHistory();
     }
 
     @Override
@@ -49,7 +48,7 @@ public class Zone extends Thread {
                 System.out.println("start accepting connection");
                 Socket socket = serverSocket.accept();
                 UserWorker userWorker = new UserWorker(socket, this);
-                this.userWorkers.add(userWorker);
+                dao.addUserWorkers(userWorker);
                 userWorker.start();
             }
         } catch (IOException e) {
@@ -58,7 +57,7 @@ public class Zone extends Thread {
     }
 
     public void removeWorker(UserWorker userWorker) {
-        this.userWorkers.remove(userWorker);
+        dao.removeUser(userWorker);
     }
 
 
@@ -78,7 +77,7 @@ public class Zone extends Thread {
 
     public void broadcast(ArrayList<Message> curBroadCasting) {
         try {
-            for (UserWorker userWorker : userWorkers) {
+            for (UserWorker userWorker : dao.getUserWorkers()) {
                 userWorker.write("Broadcasting :\n");
                 for (Message message : curBroadCasting) {
                     userWorker.write(message.toString());
