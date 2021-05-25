@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class User extends Thread {
     final int MAX_USER_INPUT_LENGTH = 200;
-    final long BROADCAST_INTERVAL_MILI = 10000;
+    final long BROADCAST_INTERVAL_MILIS = 10000;
     private final int userId;
     Socket userSocket;
     InputStream inputStream;
@@ -20,6 +20,7 @@ public class User extends Thread {
     Zone zone;
     String name;
     long lastMsgTime = 0;
+
 
     public User(int userId, Socket userSocket, Zone zone) {
         this.userId = userId;
@@ -32,14 +33,6 @@ public class User extends Thread {
             e.printStackTrace();
         }
 
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public String getUserName() {
-        return name;
     }
 
     @Override
@@ -87,8 +80,16 @@ public class User extends Thread {
             e.printStackTrace();
         }
 
-        zone.removeWorker(this);
+        zone.removeUser(this);
         this.close();
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public String getUserName() {
+        return name;
     }
 
     private void getHistory() throws IOException {
@@ -104,7 +105,7 @@ public class User extends Thread {
 
     private void broadcast() throws IOException {
         if (lastMsgTime != 0) {
-            if (System.currentTimeMillis() - lastMsgTime < BROADCAST_INTERVAL_MILI) {
+            if (System.currentTimeMillis() - lastMsgTime < BROADCAST_INTERVAL_MILIS) {
                 outputStream.write("plz wait for 10 sec until next broadcast".getBytes(StandardCharsets.UTF_8));
                 return;
             }
@@ -136,6 +137,7 @@ public class User extends Thread {
     private void close() {
         try {
             userSocket.close();
+            zone.removeUser(this);
         } catch (IOException e) {
             e.printStackTrace();
         }

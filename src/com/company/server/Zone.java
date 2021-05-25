@@ -8,14 +8,19 @@ import com.company.server.mute.UnMuteTimedTask;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lekeping
  */
 public class Zone extends Thread {
-    public static final int BROADCAST_PERIOD = 5000;
-    private final Timer timer = new Timer();
+    public static final int BROADCAST_PERIOD_SEC = 1;
+    private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(10);
     private final Object msgsQueLock = new Object();
     private final int port;
     private final Dao dao;
@@ -24,6 +29,23 @@ public class Zone extends Thread {
     public Zone(int port) {
         this.port = port;
         dao = new Dao();
+    }
+
+
+    public void addMsgsQue(Message message) {
+        //msgsQueLock ensures no messages would be lost due to unsafe thread operation
+        synchronized (msgsQueLock) {
+            msgsQue.add(message);
+        }
+    }
+
+    public ArrayList<Message> getMsgsQueAndClear() {
+        //msgsQueLock ensures no messages would be lost due to unsafe thread operation
+        ArrayList<Message> res = msgsQue;
+        synchronized (msgsQueLock) {
+            msgsQue = new ArrayList<>();
+        }
+        return res;
     }
 
     public void addHistory(Message message) {
@@ -38,12 +60,7 @@ public class Zone extends Thread {
         if (muteDuration == null || userId == -1 || !muteMap.containsKey(userId)) {
             return false;
         }
-        TimerTask task;
-        Timer timer = new Timer();
-
-        task = new UnMuteTimedTask(muteMap, userId);
-        Date delay;
-
+        Runnable task = new UnMuteTimedTask(muteMap, userId);
         switch (muteDuration) {
             default:
                 return false;
@@ -52,11 +69,11 @@ public class Zone extends Thread {
                 return true;
             case SEVENDAY:
                 muteMap.put(userId, true);
-                timer.schedule(task, 1000 * 60 * 60 * 24 * 7);
+                ses.schedule(task, 10, TimeUnit.SECONDS);
                 return true;
             case ONEDAY:
                 muteMap.put(userId, true);
-                timer.schedule(task, 1000 * 60 * 60 * 24 * 1);
+                ses.schedule(task, 9, TimeUnit.SECONDS);
                 return true;
         }
     }
@@ -67,7 +84,8 @@ public class Zone extends Thread {
 
     @Override
     public void run() {
-        timer.scheduleAtFixedRate(new BroadCastTimedTask(this), 0, BROADCAST_PERIOD);
+        Runnable broadCastTask = new BroadCastTimedTask(this);
+        ses.scheduleAtFixedRate(broadCastTask, 0, BROADCAST_PERIOD_SEC, TimeUnit.SECONDS);
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             int userId = 0;
@@ -77,7 +95,7 @@ public class Zone extends Thread {
                 Socket socket = serverSocket.accept();
                 User user = new User(userId, socket, this);
                 System.out.printf("user %d is added\n", userId);
-                dao.addUserWorkers(user);
+                dao.addUsers(user);
                 user.start();
                 userId++;
             }
@@ -86,28 +104,14 @@ public class Zone extends Thread {
         }
     }
 
-    public void removeWorker(User user) {
+    public void removeUser(User user) {
         dao.removeUser(user);
     }
 
 
-    public void addMsgsQue(Message message) {
-        synchronized (msgsQueLock) {
-            msgsQue.add(message);
-        }
-    }
-
-    public ArrayList<Message> getMsgsQueAndClear() {
-        ArrayList<Message> res = msgsQue;
-        synchronized (msgsQueLock) {
-            msgsQue = new ArrayList<>();
-        }
-        return res;
-    }
-
     public void broadcast(ArrayList<Message> curBroadCasting) {
         try {
-            for (User user : dao.getUserWorkers()) {
+            for (User user : dao.getUsers()) {
                 for (Message message : curBroadCasting) {
                     if (message.getUserId() != user.getUserId()) {
                         user.write(message.toString());
@@ -121,7 +125,7 @@ public class Zone extends Thread {
     }
 
     public Iterable<? extends User> getUsers() {
-        return dao.getUserWorkers();
+        return dao.getUsers();
     }
 
     public boolean muteAuthenticate(int userId) {

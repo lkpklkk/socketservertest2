@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * @author lekeping
+ */
 public class IOUtils {
     public static boolean continueToAccept() throws IOException {
         System.out.println("Continue to connect?y/n\n");

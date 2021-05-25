@@ -1,9 +1,11 @@
 package com.company.server.mute;
 
 import java.util.Map;
-import java.util.TimerTask;
 
-public class UnMuteTimedTask extends TimerTask {
+/**
+ * @author lekeping
+ */
+public class UnMuteTimedTask implements Runnable {
     private final Map<Integer, Boolean> muteMap;
     private final int userId;
 

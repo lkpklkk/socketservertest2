@@ -2,9 +2,9 @@
 
 - broadcast
 - broadcast history
-- broadcast history block when uninti
+- broadcast history block when empty
 - broadcast packaging
-- history save synchronizathing
+- history save synchronization
 
 ### unfinished
 

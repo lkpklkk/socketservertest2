@@ -3,12 +3,11 @@ package com.company.server.broadcast;
 import com.company.server.Zone;
 
 import java.util.ArrayList;
-import java.util.TimerTask;
 
 /**
  * @author lekeping
  */
-public class BroadCastTimedTask extends TimerTask {
+public class BroadCastTimedTask implements Runnable {
     final Zone zone;
 
     public BroadCastTimedTask(Zone zone) {
@@ -19,6 +18,7 @@ public class BroadCastTimedTask extends TimerTask {
     public void run() {
         ArrayList<Message> curBroadCasting = zone.getMsgsQueAndClear();
         if (curBroadCasting.size() != 0) {
+            System.out.println("group" + curBroadCasting);
             zone.broadcast(curBroadCasting);
         }
     }

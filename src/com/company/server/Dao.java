@@ -16,7 +16,7 @@ public class Dao {
     private final ArrayList<User> users = new ArrayList<>();
     private final Map<Integer, Boolean> muteMap = new HashMap<>();
 
-    public void addUserWorkers(User user) {
+    public void addUsers(User user) {
         users.add(user);
         muteMap.put(user.getUserId(), false);
     }
@@ -35,7 +35,7 @@ public class Dao {
         muteMap.remove(user.getUserId());
     }
 
-    public Iterable<? extends User> getUserWorkers() {
+    public Iterable<? extends User> getUsers() {
         return users;
     }
 
