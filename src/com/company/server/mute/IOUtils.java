@@ -8,11 +8,7 @@ import java.io.InputStreamReader;
  * @author lekeping
  */
 public class IOUtils {
-    public static boolean continueToAccept() throws IOException {
-        System.out.println("Continue to connect?y/n\n");
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        return "y".equalsIgnoreCase(bufferedReader.readLine());
-    }
+
 
     public static int getMuteUser() {
         String line;
