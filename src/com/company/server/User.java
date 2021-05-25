@@ -56,9 +56,9 @@ public class User extends Thread {
 
             while (!"quit".equalsIgnoreCase(line)) {
                 outputStream.write(("Type \"broadcast\" for sending a server broadcast,\n" +
-                        " \"history\" for most recent 50 broadcasthistory\n " +
+                        " \"history\" for 50 most recent broadcast histories\n " +
                         "\"echo\" for echo mode \n" +
-                        "\"quit\" to disconnect server\n").getBytes(StandardCharsets.UTF_8));
+                        "\"quit\" to disconnect from server\n").getBytes(StandardCharsets.UTF_8));
                 line = reader.readLine();
                 switch (line) {
                     case "broadcast":
