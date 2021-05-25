@@ -18,7 +18,6 @@ public class BroadCastTimedTask implements Runnable {
     public void run() {
         ArrayList<Message> curBroadCasting = zone.getMsgsQueAndClear();
         if (curBroadCasting.size() != 0) {
-            System.out.println("group" + curBroadCasting);
             zone.broadcast(curBroadCasting);
         }
     }

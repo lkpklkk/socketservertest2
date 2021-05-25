@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class Zone extends Thread {
     public static final int BROADCAST_PERIOD_SEC = 1;
     private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(10);
-    private final Object msgsQueLock = new Object();
+    private final Object msgsQueLockObject = new Object();
     private final int port;
     private final Dao dao;
     private ArrayList<Message> msgsQue = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Zone extends Thread {
 
     public void addMsgsQue(Message message) {
         //msgsQueLock ensures no messages would be lost due to unsafe thread operation
-        synchronized (msgsQueLock) {
+        synchronized (msgsQueLockObject) {
             msgsQue.add(message);
         }
     }
@@ -63,17 +63,14 @@ public class Zone extends Thread {
     public ArrayList<Message> getMsgsQueAndClear() {
         //msgsQueLock ensures no messages would be lost due to unsafe thread operation
         ArrayList<Message> res = msgsQue;
-        synchronized (msgsQueLock) {
+        synchronized (msgsQueLockObject) {
             msgsQue = new ArrayList<>();
         }
         return res;
     }
 
-    public void addHistory(Message message) {
-        synchronized (dao) {
-            dao.addHistory(message);
-        }
-
+    public synchronized void addHistory(Message message) {
+        dao.addHistory(message);
     }
 
     public boolean muteUser(MuteDuration muteDuration, int userId) {
@@ -103,11 +100,9 @@ public class Zone extends Thread {
         return dao.getHistory();
     }
 
-
     public void removeUser(User user) {
         dao.removeUser(user);
     }
-
 
     public void broadcast(ArrayList<Message> curBroadCasting) {
         try {
