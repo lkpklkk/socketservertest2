@@ -1,4 +1,4 @@
-package com.company.server.broadcast_modules;
+package com.company.server.broadcast;
 
 import com.company.server.Zone;
 

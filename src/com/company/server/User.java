@@ -1,6 +1,6 @@
 package com.company.server;
 
-import com.company.server.broadcast_modules.Message;
+import com.company.server.broadcast.Message;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,9 +10,10 @@ import java.util.List;
 /**
  * @author lekeping
  */
-public class UserWorker extends Thread {
+public class User extends Thread {
     final int MAX_USER_INPUT_LENGTH = 200;
     final long BROADCAST_INTERVAL_MILI = 10000;
+    private final int userId;
     Socket userSocket;
     InputStream inputStream;
     OutputStream outputStream;
@@ -20,8 +21,8 @@ public class UserWorker extends Thread {
     String name;
     long lastMsgTime = 0;
 
-
-    public UserWorker(Socket userSocket, Zone zone) {
+    public User(int userId, Socket userSocket, Zone zone) {
+        this.userId = userId;
         this.userSocket = userSocket;
         this.zone = zone;
         try {
@@ -33,14 +34,19 @@ public class UserWorker extends Thread {
 
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public String getUserName() {
+        return name;
+    }
+
     @Override
     public void run() {
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
         String line;
         while (true) {
-
             try {
                 outputStream.write("Connected\nYour name plz:\n".getBytes(StandardCharsets.UTF_8));
                 line = reader.readLine();
@@ -56,9 +62,10 @@ public class UserWorker extends Thread {
         try {
 
             while (!"quit".equalsIgnoreCase(line)) {
-                outputStream.write(("Type \"broadcast\" for sending a server broadcast, \"history\" for " +
-                        "last 50 broadcasthistory\n \"echo\" for echo mode and \"quit\" to disconnect " +
-                        "server\n").getBytes(StandardCharsets.UTF_8));
+                outputStream.write(("Type \"broadcast\" for sending a server broadcast,\n" +
+                        " \"history\" for most recent 50 broadcasthistory\n " +
+                        "\"echo\" for echo mode \n" +
+                        "\"quit\" to disconnect server\n").getBytes(StandardCharsets.UTF_8));
                 line = reader.readLine();
                 switch (line) {
                     case "broadcast":
@@ -91,7 +98,7 @@ public class UserWorker extends Thread {
                 this.write(message.toString());
             }
         } else {
-            write(new Message("System", "history not init yet").toString());
+            write(new Message(-1, "System", "history not init yet").toString());
         }
     }
 
@@ -110,9 +117,14 @@ public class UserWorker extends Thread {
             //msg successfully sent out from user
 
             lastMsgTime = System.currentTimeMillis();
-            Message msg = new Message(name, s);
-            zone.addMsgsQue(msg);
-            zone.addHistory(msg);
+            Message msg = new Message(userId, name, s);
+            if (zone.muteAuthenticate(userId)) {
+                zone.addMsgsQue(msg);
+                zone.addHistory(msg);
+            } else {
+                outputStream.write("you are muted, try again later".getBytes(StandardCharsets.UTF_8));
+            }
+
         } else {
             outputStream.write((s.length() > 0) ? "msg too long\n".getBytes(StandardCharsets.UTF_8)
                     : "msg cant be empty\n".getBytes(StandardCharsets.UTF_8));

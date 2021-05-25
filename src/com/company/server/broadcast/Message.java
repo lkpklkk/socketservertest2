@@ -1,16 +1,22 @@
-package com.company.server.broadcast_modules;
+package com.company.server.broadcast;
 
 
 /**
  * @author lekeping
  */
 public class Message {
+    private final int userId;
     String name;
     String content;
 
-    public Message(String name, String content) {
+    public Message(int userId, String name, String content) {
         this.name = name;
         this.content = content;
+        this.userId = userId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     @Override
