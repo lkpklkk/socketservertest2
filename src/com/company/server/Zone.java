@@ -31,6 +31,27 @@ public class Zone extends Thread {
         dao = new Dao();
     }
 
+    @Override
+    public void run() {
+        Runnable broadCastTask = new BroadCastTimedTask(this);
+        ses.scheduleAtFixedRate(broadCastTask, 0, BROADCAST_PERIOD_SEC, TimeUnit.SECONDS);
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+            int userId = 0;
+            while (true) {
+                //starting to accept connection
+                System.out.println("start accepting connection");
+                Socket socket = serverSocket.accept();
+                User user = new User(userId, socket, this);
+                System.out.printf("user %d is added\n", userId);
+                dao.addUsers(user);
+                user.start();
+                userId++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void addMsgsQue(Message message) {
         //msgsQueLock ensures no messages would be lost due to unsafe thread operation
@@ -69,11 +90,11 @@ public class Zone extends Thread {
                 return true;
             case SEVENDAY:
                 muteMap.put(userId, true);
-                ses.schedule(task, 10, TimeUnit.SECONDS);
+                ses.schedule(task, 7, TimeUnit.DAYS);
                 return true;
             case ONEDAY:
                 muteMap.put(userId, true);
-                ses.schedule(task, 9, TimeUnit.SECONDS);
+                ses.schedule(task, 1, TimeUnit.DAYS);
                 return true;
         }
     }
@@ -82,27 +103,6 @@ public class Zone extends Thread {
         return dao.getHistory();
     }
 
-    @Override
-    public void run() {
-        Runnable broadCastTask = new BroadCastTimedTask(this);
-        ses.scheduleAtFixedRate(broadCastTask, 0, BROADCAST_PERIOD_SEC, TimeUnit.SECONDS);
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            int userId = 0;
-            while (true) {
-                //starting to accept connection
-                System.out.println("start accepting connection");
-                Socket socket = serverSocket.accept();
-                User user = new User(userId, socket, this);
-                System.out.printf("user %d is added\n", userId);
-                dao.addUsers(user);
-                user.start();
-                userId++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void removeUser(User user) {
         dao.removeUser(user);
