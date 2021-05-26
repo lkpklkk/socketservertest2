@@ -5,6 +5,8 @@ import com.company.server.Zone;
 import java.util.ArrayList;
 
 /**
+ * Broadcast task scheduled with a fixed rate
+ *
  * @author lekeping
  */
 public class BroadCastTimedTask implements Runnable {
