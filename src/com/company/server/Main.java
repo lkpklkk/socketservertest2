@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 /**
+ * a simple terminal to display current connected clients, mute users and remove mute from users.
+ *
  * @author lekeping
  */
 public class Main {

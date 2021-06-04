@@ -16,6 +16,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Zone thread, responsible for arranging timed services like zone wide broadcasting, muting users, storing data through a mock dao object
+ *
  * @author lekeping
  */
 public class Zone extends Thread {
@@ -85,11 +87,11 @@ public class Zone extends Thread {
             case INFINITE:
                 muteMap.put(userId, true);
                 return true;
-            case SEVENDAY:
+            case SEVEN_DAY:
                 muteMap.put(userId, true);
                 ses.schedule(task, 7, TimeUnit.DAYS);
                 return true;
-            case ONEDAY:
+            case ONE_DAY:
                 muteMap.put(userId, true);
                 ses.schedule(task, 1, TimeUnit.DAYS);
                 return true;

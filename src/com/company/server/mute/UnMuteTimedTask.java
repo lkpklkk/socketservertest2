@@ -3,6 +3,8 @@ package com.company.server.mute;
 import java.util.Map;
 
 /**
+ * A timed task designed to broadcast cached messages with a fixed interval
+ *
  * @author lekeping
  */
 public class UnMuteTimedTask implements Runnable {

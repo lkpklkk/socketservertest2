@@ -47,9 +47,9 @@ public class IOUtils {
             }
             switch (input) {
                 case 1:
-                    return MuteDuration.ONEDAY;
+                    return MuteDuration.ONE_DAY;
                 case 2:
-                    return MuteDuration.SEVENDAY;
+                    return MuteDuration.SEVEN_DAY;
                 case 3:
                     return MuteDuration.INFINITE;
                 default:

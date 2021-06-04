@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Mock data access object for separation
+ *
  * @author lekeping
  */
 public class Dao {

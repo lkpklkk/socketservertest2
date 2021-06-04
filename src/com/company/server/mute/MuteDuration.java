@@ -10,11 +10,11 @@ public enum MuteDuration {
     /**
      * last one day
      */
-    ONEDAY,
+    ONE_DAY,
     /**
      * last seven day
      */
-    SEVENDAY,
+    SEVEN_DAY,
     /**
      * last until server shutdown
      */

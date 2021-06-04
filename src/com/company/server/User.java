@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
+ * an one thread per user approach
+ *
  * @author lekeping
  */
 public class User extends Thread {
