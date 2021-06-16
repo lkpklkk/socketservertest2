@@ -122,7 +122,7 @@ public class User extends Thread {
             lastMsgTime = System.currentTimeMillis();
             Message msg = new Message(userId, name, s);
             if (zone.muteAuthenticate(userId)) {
-                zone.addMsgsQue(msg);
+                zone.addMsgQue(msg);
                 zone.addHistory(msg);
             } else {
                 outputStream.write("you are muted, try again later".getBytes(StandardCharsets.UTF_8));

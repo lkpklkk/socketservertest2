@@ -55,14 +55,14 @@ public class Zone extends Thread {
         }
     }
 
-    public void addMsgsQue(Message message) {
-        //msgsQueLock ensures no messages would be lost due to unsafe thread operation
+    public void addMsgQue(Message message) {
+        //msgQueLock ensures no messages would be lost due to unsafe thread operation
         synchronized (msgsQueLockObject) {
             msgsQue.add(message);
         }
     }
 
-    public ArrayList<Message> getMsgsQueAndClear() {
+    public ArrayList<Message> getMsgQueAndClear() {
         //msgsQueLock ensures no messages would be lost due to unsafe thread operation
         ArrayList<Message> res = msgsQue;
         synchronized (msgsQueLockObject) {

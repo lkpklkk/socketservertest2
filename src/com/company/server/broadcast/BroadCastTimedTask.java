@@ -18,7 +18,7 @@ public class BroadCastTimedTask implements Runnable {
 
     @Override
     public void run() {
-        ArrayList<Message> curBroadCasting = zone.getMsgsQueAndClear();
+        ArrayList<Message> curBroadCasting = zone.getMsgQueAndClear();
         if (curBroadCasting.size() != 0) {
             zone.broadcast(curBroadCasting);
         }

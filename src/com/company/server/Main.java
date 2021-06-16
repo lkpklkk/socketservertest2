@@ -14,12 +14,13 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int port = 5000;
+        final int port = 5000;
         Zone zone = new Zone(port);
         zone.start();
+        System.out.printf("Currently running on port : %d\n", port);
         while (true) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("1 : display current users, 2 : mute user, 3 : disable guanLiYuan mode,");
+            System.out.println("1 : display current users, 2 : mute user, 3 : disable GuanLiYuan(admin) mode,");
             String line;
             int result;
             try {
